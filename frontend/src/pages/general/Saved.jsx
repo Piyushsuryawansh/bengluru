@@ -13,7 +13,7 @@ const Saved = () => {
         const fetchSavedVideos = async () => {
             try {
                 const response = await axios.get(
-                    'http://localhost:3000/api/food/save',
+                    `${import.meta.env.Frontend_URL}/api/food/save`,
                     { withCredentials: true }
                 );
 
@@ -47,7 +47,7 @@ const Saved = () => {
     const removeSaved = async (item) => {
         try {
             const response = await axios.post(
-                'http://localhost:3000/api/food/save',
+                `${import.meta.env.Frontend_URL}/api/food/save`,
                 { foodId: item._id },
                 { withCredentials: true }
             );
