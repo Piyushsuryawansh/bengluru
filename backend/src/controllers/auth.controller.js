@@ -3,6 +3,13 @@ const foodPartnerModel=require('../models/foodpartner.model')
 const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+}
+
 
 async function registerUser(req,res){
     const{fullName,email,password}=req.body
@@ -24,7 +31,7 @@ const token=jwt.sign({
     id:user._id,
 },process.env.JWT_SECRET)
 
-res.cookie("token",token)
+res.cookie("token",token,cookieOptions)
 
 res.status(201).json({
     message:"user register successfully",
@@ -57,7 +64,7 @@ async function loginUser(req,res){
         id:user._id
     },process.env.JWT_SECRET)
 
-    res.cookie("token", token)
+    res.cookie("token", token, cookieOptions)
     res.status(200).json({
         message:"user logged in succesfully",
         user:{
@@ -70,7 +77,7 @@ async function loginUser(req,res){
 }
 
 async function logoutUser(req,res) {
-    res.clearCookie("token");
+    res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "none" })
     res.status(200).json({
         message:"user logged out succesfully"
     });
@@ -100,7 +107,7 @@ async function registerFoodPartner(req,res) {
         id:foodPartner._id,
     }, process.env.JWT_SECRET)
 
-    res.cookie("token",token)
+    res.cookie("token",token,cookieOptions)
     res.status(201).json({
         message:"foodpartner created succesfully",
         foodPartner:{
@@ -134,7 +141,7 @@ async function loginFoodPartner(req,res){
         id:foodPartner._id,
     },process.env.JWT_SECRET)
 
-    res.cookie("token", token)
+    res.cookie("token", token, cookieOptions)
     res.status(200).json({
         message:"Food partner logged in succesfully",
         foodPartner:{
@@ -146,7 +153,7 @@ async function loginFoodPartner(req,res){
 }
 
 function logoutFoodPartner(req,res){
-    res.clearCookie("token");
+    res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "none" })
     res.status(200).json({
         message:"food partner logged out successfully"
     });
