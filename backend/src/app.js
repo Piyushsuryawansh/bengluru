@@ -9,7 +9,7 @@ const app=express()
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
-    origin:"https://foodreels-n63v.onrender.com",
+    origin: "https://bengluru-azure.vercel.app",
     credentials: true
 }))
 
