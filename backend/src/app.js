@@ -12,7 +12,7 @@ app.use(cors({
     origin: [
     "http://localhost:5173",                         // local dev (Vite)
     "http://localhost:3000",                         // local dev (CRA/Next)
-    "https://bengluru-git-main-food-view.vercel.app" // your deployed frontend
+    "https://bengluru-azure.vercel.app/" // your deployed frontend
   ],
     credentials: true
 }))
