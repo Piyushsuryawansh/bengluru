@@ -1,11 +1,4 @@
-* {
-  margin: 0%;
-  padding: 0%;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  width: 100%;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { min-height:100%; width:100%; }
+button { -webkit-tap-highlight-color:transparent; }
+:focus-visible { outline:2px solid #ff5a36; outline-offset:3px; }
