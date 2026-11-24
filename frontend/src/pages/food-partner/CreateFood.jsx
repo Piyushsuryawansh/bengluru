@@ -9,6 +9,8 @@ const CreateFood = () => {
     const [ videoFile, setVideoFile ] = useState(null);
     const [ videoURL, setVideoURL ] = useState('');
     const [ fileError, setFileError ] = useState('');
+    const [ submitError, setSubmitError ] = useState('');
+    const [ uploading, setUploading ] = useState(false);
     const fileInputRef = useRef(null);
 
     const navigate = useNavigate();
@@ -27,6 +29,7 @@ const CreateFood = () => {
         const file = e.target.files && e.target.files[ 0 ];
         if (!file) { setVideoFile(null); setFileError(''); return; }
         if (!file.type.startsWith('video/')) { setFileError('Please select a valid video file.'); return; }
+        if (file.size > 100 * 1024 * 1024) { setFileError('Video must be smaller than 100 MB.'); return; }
         setFileError('');
         setVideoFile(file);
     };
@@ -37,6 +40,7 @@ const CreateFood = () => {
         const file = e.dataTransfer?.files?.[ 0 ];
         if (!file) { return; }
         if (!file.type.startsWith('video/')) { setFileError('Please drop a valid video file.'); return; }
+        if (file.size > 100 * 1024 * 1024) { setFileError('Video must be smaller than 100 MB.'); return; }
         setFileError('');
         setVideoFile(file);
     };
@@ -49,24 +53,28 @@ const CreateFood = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-
+        if (!name.trim() || !videoFile || uploading) return;
+        setUploading(true);
+        setSubmitError('');
         const formData = new FormData();
-
-        formData.append('name', name);
-        formData.append('description', description);
-        formData.append("video", videoFile);
-
-        const response = await axios.post(`${import.meta.env.Frontend_URL}/api/food`, formData, {
-            withCredentials: true,
-        })
-
-        console.log(response.data);
-        navigate("/"); // Redirect to home or another page after successful creation
-        // Optionally reset
-        // setName(''); setDescription(''); setVideoFile(null);
+        formData.append('name', name.trim());
+        formData.append('description', description.trim());
+        formData.append('video', videoFile);
+        try {
+            await axios.post(`${import.meta.env.Frontend_URL}/api/food`, formData, {
+                withCredentials: true,
+                timeout: 180000,
+            });
+            navigate('/');
+        } catch (error) {
+            const message = error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'Upload timed out. Try a smaller video or check your connection.' : 'Could not upload your reel. Please sign in again and retry.');
+            setSubmitError(message);
+        } finally {
+            setUploading(false);
+        }
     };
 
-    const isDisabled = useMemo(() => !name.trim() || !videoFile, [ name, videoFile ]);
+    const isDisabled = useMemo(() => !name.trim() || !videoFile || uploading, [ name, videoFile, uploading ]);
 
     return (
         <div className="create-food-page">
@@ -110,6 +118,7 @@ const CreateFood = () => {
                         </div>
 
                         {fileError && <p className="error-text" role="alert">{fileError}</p>}
+                        {submitError && <p className="error-text" role="alert">{submitError}</p>}
 
                         {videoFile && (
                             <div className="file-chip" aria-live="polite">
