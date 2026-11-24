@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../styles/auth-shared.css';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -6,22 +6,22 @@ import { useNavigate } from 'react-router-dom';
 const FoodPartnerLogin = () => {
 
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    const response = await axios.post(`${import.meta.env.Frontend_URL}/api/auth/food-partner/login`, {
-      email,
-      password
-    }, { withCredentials: true });
-
-    console.log(response.data);
-
-    navigate("/create-food"); // Redirect to create food page after login
-
+    setError('');
+    setLoading(true);
+    try {
+      await axios.post(`${import.meta.env.Frontend_URL}/api/auth/food-partner/login`, {
+        email: e.target.email.value.trim(),
+        password: e.target.password.value,
+      }, { withCredentials: true });
+      navigate('/create-food');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to sign in. Check your connection and try again.');
+    } finally { setLoading(false); }
   };
 
   return (
@@ -32,6 +32,7 @@ const FoodPartnerLogin = () => {
           <p className="auth-subtitle">Access your dashboard and manage orders.</p>
         </header>
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          {error && <p className="error-text" role="alert">{error}</p>}
           <div className="field-group">
             <label htmlFor="email">Email</label>
             <input id="email" name="email" type="email" placeholder="business@example.com" autoComplete="email" />
@@ -40,7 +41,7 @@ const FoodPartnerLogin = () => {
             <label htmlFor="password">Password</label>
             <input id="password" name="password" type="password" placeholder="Password" autoComplete="current-password" />
           </div>
-          <button className="auth-submit" type="submit">Sign In</button>
+          <button className="auth-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign In"}</button>
         </form>
         <div className="auth-alt-action">
           New partner? <a href="/food-partner/register">Create an account</a>
