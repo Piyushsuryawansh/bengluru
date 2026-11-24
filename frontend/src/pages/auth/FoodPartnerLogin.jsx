@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import '../../styles/auth-shared.css';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const FoodPartnerLogin = () => {
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +19,7 @@ const FoodPartnerLogin = () => {
         email: e.target.email.value.trim(),
         password: e.target.password.value,
       }, { withCredentials: true });
-      navigate('/create-food');
+      navigate(location.state?.from || '/create-food', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Unable to sign in. Check your connection and try again.');
     } finally { setLoading(false); }
