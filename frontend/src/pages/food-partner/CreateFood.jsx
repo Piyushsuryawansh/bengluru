@@ -67,6 +67,10 @@ const CreateFood = () => {
             });
             navigate('/');
         } catch (error) {
+            if (error.response?.status === 401) {
+                navigate('/food-partner/login', { state: { from: '/create-food' } });
+                return;
+            }
             const message = error.response?.data?.message || (error.code === 'ECONNABORTED' ? 'Upload timed out. Try a smaller video or check your connection.' : 'Could not upload your reel. Please sign in again and retry.');
             setSubmitError(message);
         } finally {
