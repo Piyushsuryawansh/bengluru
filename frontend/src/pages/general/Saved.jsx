@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import '../../styles/reels.css';
 import axios from 'axios';
 import ReelFeed from '../../components/ReelFeed';
+import { useNavigate } from 'react-router-dom';
 
 const Saved = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSavedVideos = async () => {
@@ -25,6 +27,10 @@ const Saved = () => {
             commentsCount: Number(food.commentsCount) || 0,
           })));
       } catch (err) {
+        if (err.response?.status === 401) {
+          navigate('/user/login', { state: { from: '/saved' } });
+          return;
+        }
         console.error('Failed to fetch saved videos:', err.response?.data || err.message);
         setError('Could not load your saved reels. Please try again.');
       } finally {
@@ -32,7 +38,7 @@ const Saved = () => {
       }
     };
     fetchSavedVideos();
-  }, []);
+  }, [navigate]);
 
   const removeSaved = async (item) => {
     try {
