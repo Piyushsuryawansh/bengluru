@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/auth-shared.css';
 import axios from 'axios';
@@ -7,32 +7,26 @@ import { useNavigate } from 'react-router-dom';
 const FoodPartnerRegister = () => {
 
   const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
-  const handleSubmit = (e) => { 
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const businessName = e.target.businessName.value;
-    const contactName = e.target.contactName.value;
-    const phone = e.target.phone.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const address = e.target.address.value;
-
-    axios.post(`${import.meta.env.Frontend_URL}/api/auth/food-partner/register`, {
-      name:businessName,
-      contactName,
-      phone,
-      email,
-      password,
-      address
-    }, { withCredentials: true })
-      .then(response => {
-        console.log(response.data);
-        navigate("/create-food"); // Redirect to create food page after successful registration
-      })
-      .catch(error => {
-        console.error("There was an error registering!", error);
-      });
+    setError('');
+    setLoading(true);
+    try {
+      await axios.post(`${import.meta.env.Frontend_URL}/api/auth/food-partner/register`, {
+        name: e.target.businessName.value.trim(),
+        contactName: e.target.contactName.value.trim(),
+        phone: e.target.phone.value.trim(),
+        email: e.target.email.value.trim(),
+        password: e.target.password.value,
+        address: e.target.address.value.trim(),
+      }, { withCredentials: true });
+      navigate('/create-food');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Unable to create partner account. Please try again.');
+    } finally { setLoading(false); }
   };
 
   return (
@@ -46,6 +40,7 @@ const FoodPartnerRegister = () => {
           <strong style={{fontWeight:600}}>Switch:</strong> <Link to="/user/register">User</Link> • <Link to="/food-partner/register">Food partner</Link>
         </nav>
         <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          {error && <p className="error-text" role="alert">{error}</p>}
           <div className="field-group">
             <label htmlFor="businessName">Business Name</label>
             <input id="businessName" name="businessName" placeholder="Tasty Bites" autoComplete="organization" />
@@ -73,7 +68,7 @@ const FoodPartnerRegister = () => {
             <input id="address" name="address" placeholder="123 Market Street" autoComplete="street-address" />
             <p className="small-note">Full address helps customers find you faster.</p>
           </div>
-          <button className="auth-submit" type="submit">Create Partner Account</button>
+          <button className="auth-submit" type="submit" disabled={loading}>{loading ? "Creating account…" : "Create Partner Account"}</button>
         </form>
         <div className="auth-alt-action">
           Already a partner? <Link to="/food-partner/login">Sign in</Link>
