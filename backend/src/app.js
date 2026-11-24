@@ -30,6 +30,9 @@ app.use('/api/food-partner', foodPartnerRoutes)
 
 app.use((err, req, res, next) => {
   console.error('API error:', err)
+  if (err && err.message === 'Please upload a valid video file.') {
+    return res.status(400).json({ message: err.message })
+  }
   if (err && err.name === 'MulterError') {
     return res.status(400).json({ message: err.code === 'LIMIT_FILE_SIZE' ? 'Video is too large.' : err.message })
   }
