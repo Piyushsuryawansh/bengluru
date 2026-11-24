@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import '../../styles/reels.css'
 import ReelFeed from '../../components/ReelFeed'
+import { useNavigate } from 'react-router-dom'
 
 const categories = ['For you', 'Street food', 'South Indian', 'North Indian', 'Desserts', 'Cafés']
 const categoryKeywords = {
@@ -17,6 +18,8 @@ const Home = () => {
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState('For you')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [actionMessage, setActionMessage] = useState('')
+  const navigate = useNavigate()
 
   useEffect(() => {
     axios.get(`${import.meta.env.Frontend_URL}/api/food`, { withCredentials: true })
@@ -43,7 +46,13 @@ const Home = () => {
       setVideos(prev => prev.map(v => v._id === item._id
         ? { ...v, likeCount: Math.max(0, (Number(v.likeCount ?? v.likesCount ?? v.likes) || 0) + (response.data.like ? 1 : -1)) }
         : v))
-    } catch (error) { console.error('Unable to update like', error) }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        navigate('/user/login', { state: { from: '/' } })
+        return
+      }
+      setActionMessage(error.response?.data?.message || 'Could not update your like. Please try again.')
+    }
   }
 
   async function saveVideo(item) {
@@ -52,7 +61,13 @@ const Home = () => {
       setVideos(prev => prev.map(v => v._id === item._id
         ? { ...v, savesCount: Math.max(0, (Number(v.savesCount ?? v.bookmarks ?? v.saves) || 0) + (response.data.save ? 1 : -1)) }
         : v))
-    } catch (error) { console.error('Unable to save reel', error) }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        navigate('/user/login', { state: { from: '/' } })
+        return
+      }
+      setActionMessage(error.response?.data?.message || 'Could not save this reel. Please try again.')
+    }
   }
 
   return (
@@ -82,6 +97,7 @@ const Home = () => {
         {categories.map(category => <button key={category} type="button" className={activeCategory === category ? 'category-chip active' : 'category-chip'} onClick={() => setActiveCategory(category)}>{category === 'For you' ? '✦' : '＋'} <span>{category}</span></button>)}
       </nav>
 
+      {actionMessage && <p className="error-text" role="alert">{actionMessage}</p>}
       <div className="feed-heading"><div><span className="live-dot" /> FRESH FROM THE CITY</div><span>{filteredVideos.length} {filteredVideos.length === 1 ? 'reel' : 'reels'}</span></div>
       <ReelFeed items={filteredVideos} onLike={likeVideo} onSave={saveVideo} emptyMessage={query ? 'No reels match that search. Try another dish or place.' : 'The kitchen is warming up. Check back for fresh food reels!'} />
     </main>
