@@ -4,6 +4,13 @@ import '../../styles/reels.css'
 import ReelFeed from '../../components/ReelFeed'
 
 const categories = ['For you', 'Street food', 'South Indian', 'North Indian', 'Desserts', 'Cafés']
+const categoryKeywords = {
+  'Street food': ['street', 'chaat', 'momo', 'pani puri', 'golgappa', 'vada pav', 'roll', 'kebab', 'pav bhaji'],
+  'South Indian': ['south indian', 'idli', 'dosa', 'sambar', 'uttapam', 'rasam', 'medu vada'],
+  'North Indian': ['north indian', 'paneer', 'naan', 'paratha', 'chole', 'kulcha', 'dal makhani', 'butter chicken'],
+  Desserts: ['dessert', 'sweet', 'cake', 'ice cream', 'pastry', 'brownie', 'gulab jamun', 'jalebi', 'mithai'],
+  'Cafés': ['cafe', 'coffee', 'latte', 'cappuccino', 'bakery', 'croissant', 'sandwich']
+}
 
 const Home = () => {
   const [videos, setVideos] = useState([])
@@ -23,10 +30,9 @@ const Home = () => {
       const text = [item.name, item.description, item.foodPartner?.name, item.category, item.location]
         .filter(Boolean).join(' ').toLowerCase()
       const matchesSearch = !term || text.includes(term)
-      const category = (item.category || '').toLowerCase()
+      const keywords = categoryKeywords[activeCategory] || []
       const matchesCategory = activeCategory === 'For you' ||
-        category.includes(activeCategory.toLowerCase()) ||
-        (activeCategory === 'Cafés' && text.includes('cafe'))
+        keywords.some(keyword => text.includes(keyword))
       return matchesSearch && matchesCategory
     })
   }, [videos, query, activeCategory])
