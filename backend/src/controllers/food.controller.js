@@ -3,7 +3,7 @@ const foodModel = require('../models/fooditme.model')
 const likeModel = require('../models/likes.model')
 const saveModel = require('../models/save.model')
 const storageService = require('../services/storage.service')
-const { v4: uuid } = require('uuid')
+const { randomUUID } = require('crypto')
 
 async function createFood(req, res) {
   try {
@@ -17,7 +17,7 @@ async function createFood(req, res) {
     const description = String(req.body.description || '').trim()
     if (!name) return res.status(400).json({ message: 'Food name is required.' })
 
-    const videoUrl = await storageService.uploadFile(req.file.buffer, `${uuid()}-${req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '-')}`)
+    const videoUrl = await storageService.uploadFile(req.file.buffer, `${randomUUID()}-${req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '-')}`)
     const foodItem = await foodModel.create({
       name,
       description,
