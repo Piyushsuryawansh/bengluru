@@ -1,15 +1,11 @@
-const mongoose=require('mongoose');
+const mongoose = require('mongoose')
 
-
-function connectDB(){
-    mongoose.connect(process.env.MONGODB_URI)
-    .then(()=>{
-        console.log("Mongodb connected");
-    })
-    .catch((err)=>{
-        console.log("Mongodb connection error:", err);
-    })
-
+async function connectDB() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI is not configured in backend/.env')
+  }
+  await mongoose.connect(process.env.MONGODB_URI)
+  console.log('MongoDB connected')
 }
 
-module.exports=connectDB
+module.exports = connectDB
