@@ -1,18 +1,9 @@
-const express=require('express');
-const { authUserMiddleware } = require('../middlewares/auth.middleware');
-const foodPartnerController=require("../controllers/food-partner.controller")
+const express = require('express')
+const foodPartnerController = require('../controllers/food-partner.controller')
 
-const router=express.Router();
+const router = express.Router()
 
+// Public restaurant/food partner profiles are viewable without an account.
+router.get('/:id', foodPartnerController.getFoodPartnerById)
 
-router.get("/:id",
-    authUserMiddleware,
-    foodPartnerController.getFoodPartnerById
-)
-
-
-
-module.exports=router
-
-
-
+module.exports = router
