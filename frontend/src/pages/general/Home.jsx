@@ -20,7 +20,7 @@ const Home = () => {
   const filteredVideos = useMemo(() => {
     const term = query.trim().toLowerCase()
     return videos.filter(item => {
-      const text = [item.description, item.foodPartner?.name, item.category, item.location]
+      const text = [item.name, item.description, item.foodPartner?.name, item.category, item.location]
         .filter(Boolean).join(' ').toLowerCase()
       const matchesSearch = !term || text.includes(term)
       const category = (item.category || '').toLowerCase()
@@ -35,7 +35,7 @@ const Home = () => {
     try {
       const response = await axios.post(`${import.meta.env.Frontend_URL}/api/food/like`, { foodId: item._id }, { withCredentials: true })
       setVideos(prev => prev.map(v => v._id === item._id
-        ? { ...v, likeCount: Math.max(0, (Number(v.likeCount) || 0) + (response.data.like ? 1 : -1)) }
+        ? { ...v, likeCount: Math.max(0, (Number(v.likeCount ?? v.likesCount ?? v.likes) || 0) + (response.data.like ? 1 : -1)) }
         : v))
     } catch (error) { console.error('Unable to update like', error) }
   }
@@ -44,7 +44,7 @@ const Home = () => {
     try {
       const response = await axios.post(`${import.meta.env.Frontend_URL}/api/food/save`, { foodId: item._id }, { withCredentials: true })
       setVideos(prev => prev.map(v => v._id === item._id
-        ? { ...v, savesCount: Math.max(0, (Number(v.savesCount) || 0) + (response.data.save ? 1 : -1)) }
+        ? { ...v, savesCount: Math.max(0, (Number(v.savesCount ?? v.bookmarks ?? v.saves) || 0) + (response.data.save ? 1 : -1)) }
         : v))
     } catch (error) { console.error('Unable to save reel', error) }
   }
