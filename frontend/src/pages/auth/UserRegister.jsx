@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/auth-shared.css';
 import axios from 'axios';
@@ -7,29 +7,23 @@ import { useNavigate } from 'react-router-dom';
 const UserRegister = () => {
 
     const navigate = useNavigate();
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const firstName = e.target.firstName.value;
-        const lastName = e.target.lastName.value;
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
-
-        const response = await axios.post(`${import.meta.env.Frontend_URL}/api/auth/user/register`, {
-            fullName: firstName + " " + lastName,
-            email,
-            password
-        },
-        {
-            withCredentials: true
-        })
-
-        console.log(response.data);
-
-        navigate("/")
-
+        setError('');
+        setLoading(true);
+        try {
+            await axios.post(`${import.meta.env.Frontend_URL}/api/auth/user/register`, {
+                fullName: `${e.target.firstName.value.trim()} ${e.target.lastName.value.trim()}`.trim(),
+                email: e.target.email.value.trim(),
+                password: e.target.password.value,
+            }, { withCredentials: true });
+            navigate('/');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Unable to create your account. Please try again.');
+        } finally { setLoading(false); }
     };
 
     return (
@@ -43,6 +37,7 @@ const UserRegister = () => {
                     <strong style={{ fontWeight: 600 }}>Switch:</strong> <Link to="/user/register">User</Link> • <Link to="/food-partner/register">Food partner</Link>
                 </nav>
                 <form className="auth-form" onSubmit={handleSubmit} noValidate>
+                    {error && <p className="error-text" role="alert">{error}</p>}
                     <div className="two-col">
                         <div className="field-group">
                             <label htmlFor="firstName">First Name</label>
@@ -61,7 +56,7 @@ const UserRegister = () => {
                         <label htmlFor="password">Password</label>
                         <input id="password" name="password" type="password" placeholder="••••••••" autoComplete="new-password" />
                     </div>
-                    <button className="auth-submit" type="submit">Sign Up</button>
+                    <button className="auth-submit" type="submit" disabled={loading}>{loading ? "Creating account…" : "Sign Up"}</button>
                 </form>
                 <div className="auth-alt-action">
                     Already have an account? <Link to="/user/login">Sign in</Link>
