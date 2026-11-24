@@ -10,6 +10,7 @@ const ReelFeed = ({
   emptyMessage = 'No videos yet.',
 }) => {
   const videoRefs = useRef(new Map());
+  const feedRef = useRef(null);
 
   // Safely convert count values to valid numbers
   const getCount = (value) => {
@@ -19,24 +20,36 @@ const ReelFeed = ({
 
   // Autoplay the video that is mostly visible
   useEffect(() => {
+    const visibility = new Map();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const video = entry.target;
+          visibility.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0);
+        });
 
-          if (!(video instanceof HTMLVideoElement)) return;
+        // Keep only the most-visible reel playing, so desktop users do not hear
+        // several videos at once when multiple cards fit on screen.
+        let activeVideo = null;
+        let highestRatio = 0;
+        visibility.forEach((ratio, video) => {
+          if (ratio > highestRatio) {
+            highestRatio = ratio;
+            activeVideo = video;
+          }
+        });
 
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-            video.play().catch(() => {
-              // Ignore autoplay errors
-            });
+        videoRefs.current.forEach((video) => {
+          if (!video) return;
+          if (video === activeVideo && highestRatio >= 0.55) {
+            video.play().catch(() => {});
           } else {
             video.pause();
           }
         });
       },
       {
-        threshold: [0, 0.25, 0.6, 0.9, 1],
+        root: feedRef.current,
+        threshold: [0, 0.25, 0.55, 0.75, 1],
       }
     );
 
@@ -59,7 +72,7 @@ const ReelFeed = ({
 
   return (
     <div className="reels-page">
-      <div className="reels-feed" role="list">
+      <div className="reels-feed" role="list" ref={feedRef}>
         {items.length === 0 && (
           <div className="empty-state">
             <p>{emptyMessage}</p>
