@@ -1,43 +1,49 @@
 @import './theme.css';
 
 .bottom-nav {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: 56px;
-   background: color-mix(in srgb, #000 35%, transparent);
-  backdrop-filter: blur(2px);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,.15);
-  box-shadow: var(--shadow-md);
-  border-top: 1px solid var(--color-border);
-  z-index: 50;
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:max(16px,env(safe-area-inset-bottom));
+  width:min(320px,calc(100% - 32px));
+  height:64px;
+  padding:5px;
+  background:rgba(32,32,24,.94);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:22px;
+  box-shadow:0 14px 38px rgba(26,25,18,.24);
+  z-index:50;
 }
-
 .bottom-nav__inner {
-  max-width: 720px;
-  margin: 0 auto;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  width:100%;
+  height:100%;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4px;
 }
-
 .bottom-nav__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  gap: 2px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,255,255,.65);
+  text-decoration:none;
+  gap:8px;
+  border-radius:17px;
+  transition:background .2s ease,color .2s ease,transform .2s ease;
 }
-
-.bottom-nav__item.is-active { color: var(--color-text); }
-
-.bottom-nav__icon { line-height: 0; }
-
-.bottom-nav__label { font-size: 12px; }
-
-/* Safe area for iOS */
-@supports(padding: max(0px)) {
-  .bottom-nav { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+.bottom-nav__item:hover { color:#fff; }
+.bottom-nav__item.is-active {
+  color:#242519;
+  background:#d6f36a;
+}
+.bottom-nav__icon { line-height:0; display:grid; place-items:center; }
+.bottom-nav__icon svg { width:19px; height:19px; }
+.bottom-nav__label { font-size:12px; font-weight:800; }
+.bottom-nav__item:active { transform:scale(.97); }
+@media (max-width:480px) {
+  .bottom-nav { bottom:max(10px,env(safe-area-inset-bottom)); height:60px; }
 }
